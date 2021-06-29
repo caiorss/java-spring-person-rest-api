@@ -24,6 +24,8 @@ public class Phone
     @Column( nullable = false)
     private PhoneType type = PhoneType.HOME;
 
+    // Numbers are not unique as more than one person living
+    // at the same household may share the same phone number.
     @Column( nullable = false )
     private String phone;
 }
