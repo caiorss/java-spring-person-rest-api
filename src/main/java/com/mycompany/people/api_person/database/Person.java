@@ -37,7 +37,7 @@ public class Person
     @Column( nullable = false)
     private LocalDate dateOfBirth;
 
-    @OneToMany( fetch = FetchType.LAZY, cascade = {})
+    @OneToMany( fetch = FetchType.LAZY, cascade = {  CascadeType.PERSIST , CascadeType.MERGE , CascadeType.REMOVE })
     private List<Phone> phones;
 }
 
