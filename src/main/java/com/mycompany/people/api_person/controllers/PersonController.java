@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 /**  Note: The API path at localhost is:
  *  https://localhost:9056/api/v1/people
@@ -35,10 +36,12 @@ public class PersonController {
         System.err.println(" [TRACE] Repository = " + repository);
     }
 
-    // @GetMapping
-    public String entrypoint()
+    @GetMapping
+    public List<Person> listAll()
     {
-        return "Hello word Entrypoint.";
+        List<Person> all = personRepository.findAll();
+        System.err.println(" [TRACE] All people = \n" + all );
+        return all;
     }
 
     // Http method POST
