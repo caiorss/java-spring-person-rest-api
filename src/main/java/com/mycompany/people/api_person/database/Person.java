@@ -1,4 +1,4 @@
-package com.mycompany.people.api_person.entity;
+package com.mycompany.people.api_person.database;
 
 // Import Entity, Id,
 import javax.persistence.*;
@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import com.mycompany.people.api_person.entity.PhoneType;
 
 import java.time.LocalDate;
 import java.util.List;

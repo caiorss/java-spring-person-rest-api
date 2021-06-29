@@ -1,4 +1,4 @@
-package com.mycompany.people.api_person.entity;
+package com.mycompany.people.api_person.database;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.mycompany.people.api_person.entity;
+package com.mycompany.people.api_person.database;
 
 // Import Entity, Id,
 import javax.persistence.*;
