@@ -31,7 +31,7 @@ public class Person
 
     // Brazilian CPF (Cadastro de Pessoas Fisicas) - equivalent to
     // American SSN (Social Security Number)
-    @Column( nullable = false)
+    @Column( nullable = false, unique = true)
     private String cpf;
 
     @Column( nullable = false)
