@@ -22,7 +22,7 @@ public class Phone
 
     @Enumerated(EnumType.STRING)
     @Column( nullable = false)
-    private PhoneType type;
+    private PhoneType type = PhoneType.HOME;
 
     @Column( nullable = false )
     private String phone;
