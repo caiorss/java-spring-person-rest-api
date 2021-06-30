@@ -35,14 +35,16 @@ class Exception_PersonNotFound extends Exception
 public class PersonController
 {
 
-    private PersonRepository personRepository;
+    // Note: Initialized by dependency injection through constructor.
+    private PersonRepository personRepository = null;
 
     // Dependency injection via constructor parameter.
     // Dependency injection means that an internal class attribute dependency is
     // instantiated by the calling code (External code) rather instead of
     // being instantiated by the class.
     @Autowired
-    public PersonController(PersonRepository repository) {
+    public PersonController(PersonRepository repository)
+    {
         System.err.println(" [TRACE] Person controller instantiated. Ok. ");
         this.personRepository = repository;
 
@@ -50,7 +52,8 @@ public class PersonController
     }
 
     @GetMapping
-    public List<Person> listAll() {
+    public List<Person> listAll()
+    {
         List<Person> all = personRepository.findAll();
         System.err.println(" [TRACE] All people = \n" + all);
         return all;
@@ -58,7 +61,8 @@ public class PersonController
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Person findById(@PathVariable Long id) throws Exception_PersonNotFound {
+    public Person findById(@PathVariable Long id) throws Exception_PersonNotFound
+    {
         Optional<Person> opt = this.personRepository.findById(id);
         if (opt.isEmpty()) {
             throw new Exception_PersonNotFound(id);
