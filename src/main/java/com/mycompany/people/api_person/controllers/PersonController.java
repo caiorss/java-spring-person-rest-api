@@ -58,6 +58,15 @@ public class PersonController
         return all;
     }
 
+    @GetMapping("/{id}")
+    @ResponseStatus( HttpStatus.OK )
+    public Person findById(@PathVariable Long id) throws Exception_PersonNotFound
+    {
+        Optional<Person> opt = this.personRepository.findById(id);
+        if( opt.isEmpty() ){ throw new Exception_PersonNotFound(id);   }
+        return opt.get();
+    }
+
     // Http method POST
     @PostMapping
     @ResponseStatus( HttpStatus.CREATED )
@@ -67,6 +76,7 @@ public class PersonController
         System.err.println(" [TRACE] Create object = " + person);
         return " Created person with ID = " + saved.getId();
     }
+
 
     /** Create some sample data for experimentation purposes. */
     public String createSampleData()
