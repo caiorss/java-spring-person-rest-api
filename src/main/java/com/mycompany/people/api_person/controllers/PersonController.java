@@ -42,8 +42,7 @@ public class PersonController
     // instantiated by the calling code (External code) rather instead of
     // being instantiated by the class.
     @Autowired
-    public PersonController(PersonRepository repository)
-    {
+    public PersonController(PersonRepository repository) {
         System.err.println(" [TRACE] Person controller instantiated. Ok. ");
         this.personRepository = repository;
 
@@ -51,25 +50,25 @@ public class PersonController
     }
 
     @GetMapping
-    public List<Person> listAll()
-    {
+    public List<Person> listAll() {
         List<Person> all = personRepository.findAll();
-        System.err.println(" [TRACE] All people = \n" + all );
+        System.err.println(" [TRACE] All people = \n" + all);
         return all;
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus( HttpStatus.OK )
-    public Person findById(@PathVariable Long id) throws Exception_PersonNotFound
-    {
+    @ResponseStatus(HttpStatus.OK)
+    public Person findById(@PathVariable Long id) throws Exception_PersonNotFound {
         Optional<Person> opt = this.personRepository.findById(id);
-        if( opt.isEmpty() ){ throw new Exception_PersonNotFound(id);   }
+        if (opt.isEmpty()) {
+            throw new Exception_PersonNotFound(id);
+        }
         return opt.get();
     }
 
     // Http method POST
     @PostMapping
-    @ResponseStatus( HttpStatus.CREATED )
+    @ResponseStatus(HttpStatus.CREATED)
     public String create(@RequestBody Person person)
     {
         Person saved = personRepository.save(person);
@@ -77,6 +76,14 @@ public class PersonController
         return " Created person with ID = " + saved.getId();
     }
 
+    // Http method DELETE
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id)
+    {
+        System.err.printf(" [TRACE] Deleting item id = %d \n", id);
+        this.personRepository.deleteById(id);
+    }
 
     /** Create some sample data for experimentation purposes. */
     public String createSampleData()
