@@ -111,6 +111,26 @@ public class PersonController
         this.personRepository.deleteById(id);
     }
 
+    // Note: It performs full update
+    // http method PUT => Action update database row.
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void update(@PathVariable Long id, @RequestBody @Valid PersonDTO personDTO) throws Exception_PersonNotFound
+    {
+        System.err.println(" [TRACE] PersonController.update() => PersonDTO = " + personDTO);
+        if( personRepository.findById(id).isEmpty() )
+        {
+            throw new Exception_PersonNotFound(id);
+        }
+        Person entity = personRepository.getById(id);
+        Person person = personMapper.toModel(personDTO);
+        entity.setFirstName(person.getFirstName());
+        entity.setLastName(person.getLastName());
+        entity.setCpf(person.getCpf());
+        entity.setPhones(person.getPhones());
+        personRepository.save(entity);
+    }
+
     /** Create some sample data for experimentation purposes. */
     public String createSampleData()
     {
