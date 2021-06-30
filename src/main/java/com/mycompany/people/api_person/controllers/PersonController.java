@@ -32,7 +32,8 @@ class Exception_PersonNotFound extends Exception
  *------------------------------------------------*/
 @RestController
 @RequestMapping("/api/v1/people")
-public class PersonController {
+public class PersonController
+{
 
     private PersonRepository personRepository;
 
