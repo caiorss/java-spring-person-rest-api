@@ -8,9 +8,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+// Class is placed in this file for avoiding code bloat.
+// Note: It is not a checked exception
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class Exception_PersonNotFound extends Exception
+{
+    public Exception_PersonNotFound(Long id)
+    {
+        super(String.format(" [ERROR] Unable to find person which id is %d ", id));
+    }
+}
 
 /**  Note: The API path at localhost is:
  *  https://localhost:9056/api/v1/people
