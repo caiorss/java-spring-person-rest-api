@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +66,7 @@ public class PersonController
         System.err.println(" [TRACE] Repository = " + repository);
     }
 
+    // Http method GET
     @GetMapping
     public List<Person> listAll()
     {
@@ -73,6 +75,8 @@ public class PersonController
         return all;
     }
 
+    // Note: This method returns 'Person' instead of DTO since it is assumed that
+    // the data in the database is already validated.
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Person findById(@PathVariable Long id) throws Exception_PersonNotFound
@@ -87,7 +91,7 @@ public class PersonController
     // Http method POST
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String create(@RequestBody PersonDTO personDTO)
+    public String create(@RequestBody @Valid PersonDTO personDTO)
     {
         assert personMapper != null;
         Person person = personMapper.toModel(personDTO);
