@@ -4,6 +4,9 @@ import com.mycompany.people.api_person.database.Person;
 import com.mycompany.people.api_person.database.PersonRepository;
 import com.mycompany.people.api_person.database.Phone;
 import com.mycompany.people.api_person.database.PhoneType;
+import com.mycompany.people.api_person.dto.PersonDTO;
+import com.mycompany.people.api_person.dto.PersonMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -32,21 +35,32 @@ class Exception_PersonNotFound extends Exception
  *------------------------------------------------*/
 @RestController
 @RequestMapping("/api/v1/people")
+// @AllArgsConstructor( onConstructor = @__(@Autowired))
 public class PersonController
 {
 
     // Note: Initialized by dependency injection through constructor.
-    private PersonRepository personRepository = null;
+    // Note: The 'final' keyword means that the reference to object
+    //       can only be initialized only once, it is similar to C++ const pointer
+    //       or to C++ const reference. Variables  annotated with final must be
+    //       initialized by all class' constructors.
+    private final PersonRepository personRepository ;
+    private PersonMapper personMapper;
 
     // Dependency injection via constructor parameter.
     // Dependency injection means that an internal class attribute dependency is
     // instantiated by the calling code (External code) rather instead of
     // being instantiated by the class.
     @Autowired
-    public PersonController(PersonRepository repository)
+    public PersonController(PersonRepository repository, PersonMapper mapper)
     {
         System.err.println(" [TRACE] Person controller instantiated. Ok. ");
         this.personRepository = repository;
+        this.personMapper = mapper;
+
+        // Assertions for checking and enforcing assumptions.
+        assert this.personRepository != null;
+        assert this.personMapper != null;
 
         System.err.println(" [TRACE] Repository = " + repository);
     }
@@ -73,8 +87,12 @@ public class PersonController
     // Http method POST
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String create(@RequestBody Person person)
+    public String create(@RequestBody PersonDTO personDTO)
     {
+        assert personMapper != null;
+        Person person = personMapper.toModel(personDTO);
+        System.err.println(" [TRACE] PersonDTO = " + personDTO);
+        System.err.println(" [TRACE] Person = " + person);
         Person saved = personRepository.save(person);
         System.err.println(" [TRACE] Create object = " + person);
         return " Created person with ID = " + saved.getId();
