@@ -17,7 +17,9 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
      , "lastName": "Moreira Silva Junior"
      , "cpf": "370.329.298-93"
      , "dateOfBirth": "1990-02-25"  
-     , "phones": []
+     , "phones": [
+          { "type":  "HOME", "phone": "9-922-2459"}
+     ]
    }
 EOF
 
