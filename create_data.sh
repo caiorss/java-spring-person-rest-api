@@ -1,5 +1,8 @@
 #!/usr/bin/env sh
 
+echo " [*] CREDENTIAL = $CREDENTIAL"
+
+
 # Scripting for automating sample data creation through
 # the rest API
 #
@@ -8,9 +11,14 @@
 # the online tool:
 #   + https://theonegenerator.com/generators/documents/cpf-generator/
 #
+#  Note: Before using this script set the environment variable.
+# $ export CREDENTIALS=<USERNAME>:<PASSWORD> 
+#
 #---------------------------------------------------------------------#
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+CURL_COMMAND=curl 
+
+curl -u $CREDENTIAL -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    { "firstName": "João"
@@ -23,7 +31,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Amelia"
@@ -37,7 +45,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "João"
@@ -52,7 +60,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "João"
@@ -68,7 +76,7 @@ EOF
 
 
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Mosche"
@@ -84,7 +92,7 @@ EOF
 
 
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Youssef"
@@ -99,7 +107,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Cohen"
@@ -113,7 +121,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Moche"
@@ -128,7 +136,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Marisol"
@@ -144,7 +152,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Maria"
@@ -160,7 +168,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Laura"
@@ -174,7 +182,7 @@ curl -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-curl -0 -v POST http://localhost:9056/api/v1/people \
+$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "John"
