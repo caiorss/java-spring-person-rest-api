@@ -30,6 +30,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
+	// Dependencies for security and authentication
+	//-----------------------------------------------------------------
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 	// Note: The following two dependencies are necessary for the imports:
 	//  javax.validation and org.hibernate.validator.constraints.br.*
 	// Specification of javax.validation Validation API for  DTO (Data-Transfer-Object)
