@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
@@ -82,8 +83,11 @@ public class PersonController
     public Person findById(@PathVariable Long id) throws Exception_PersonNotFound
     {
         Optional<Person> opt = this.personRepository.findById(id);
+
         if (opt.isEmpty()) {
-            throw new Exception_PersonNotFound(id);
+            // throw new Exception_PersonNotFound(id);
+            throw new ResponseStatusException( HttpStatus.NOT_FOUND
+                                              , String.format("No resource found for id (%s)", id));
         }
         return opt.get();
     }
