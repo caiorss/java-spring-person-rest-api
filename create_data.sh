@@ -12,13 +12,13 @@ echo " [*] CREDENTIAL = $CREDENTIAL"
 #   + https://theonegenerator.com/generators/documents/cpf-generator/
 #
 #  Note: Before using this script set the environment variable.
-# $ export CREDENTIALS=<USERNAME>:<PASSWORD> 
+#
+# $ export API_KEY=<API-KEY>
 #
 #---------------------------------------------------------------------#
 
-CURL_COMMAND=curl 
 
-curl -u $CREDENTIAL -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    { "firstName": "João"
@@ -31,7 +31,9 @@ curl -u $CREDENTIAL -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+# exit 0
+
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Amelia"
@@ -45,7 +47,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "João"
@@ -60,7 +62,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "João"
@@ -76,7 +78,7 @@ EOF
 
 
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Mosche"
@@ -92,7 +94,7 @@ EOF
 
 
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Youssef"
@@ -107,7 +109,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Cohen"
@@ -121,7 +123,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Moche"
@@ -136,7 +138,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Marisol"
@@ -152,7 +154,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Maria"
@@ -168,7 +170,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
 EOF
 
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Laura"
@@ -182,7 +184,7 @@ $CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
    }
 EOF
 
-$CURL_COMMAND -0 -v POST http://localhost:9056/api/v1/people \
+curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "John"

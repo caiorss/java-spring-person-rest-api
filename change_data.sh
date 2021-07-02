@@ -1,11 +1,10 @@
 #!/usr/bin/env sh 
 
 # Note: Before using this script set the environment variable.
-# $ export CREDENTIALS=<USERNAME>:<PASSWORD> 
+# $ export API_KEY=<API-KEY>
 #
-CURL_COMMAND=curl 
 
-$CURL_COMMAND -0 -v -X PUT http://localhost:9056/api/v1/people/1 \
+curl -0 -v -H "X-AUTH-KEY: $API_KEY" --request PUT http://localhost:9056/api/v1/people/1 \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    { 
@@ -19,9 +18,9 @@ $CURL_COMMAND -0 -v -X PUT http://localhost:9056/api/v1/people/1 \
    }
 EOF
 
-exit 0
+#exit 0
 
-$CURL_COMMAND -0 -v -X PUT http://localhost:9056/api/v1/people/2  \
+curl -0 -v -H "X-AUTH-KEY: $API_KEY" --request PUT http://localhost:9056/api/v1/people/2  \
      -H 'Content-Type: application/json; charset=utf-8' \
      --data-binary @- << EOF
    {   "firstName": "Maria"
