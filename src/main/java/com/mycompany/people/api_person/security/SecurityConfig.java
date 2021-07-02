@@ -25,53 +25,63 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 @EnableWebSecurity
 @PropertySource("classpath:application.properties")
 @Order(1)
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter
+{
 
-    @Value("${application.api.tokenName}")
-    private String authHeaderName; //= "X-AUTH-KEY";
+    @Value("${application.auth.enabled}")
+    private boolean authEnabled;
 
-    @Value("${application.api.tokenValue}")
-    private String authHeaderValue; // = "abacus";
+    @Value("${application.auth.tokenName}")
+    private String authHeaderName;
+
+    @Value("${application.auth.tokenValue}")
+    private String authHeaderValue;
 
     @Override
-    protected void configure(HttpSecurity httpSecurity) throws Exception
+    protected void configure(HttpSecurity http) throws Exception
     {
+
+        // If authEnabled field is false, then the authentication is disabled.
+        if( !authEnabled ) {
+            System.err.println(" [WARN] Authentication is disabled. ");
+            http.csrf().disable();
+            return;
+        }
+
         System.err.println(" [TRACE] Entered method. SecurityConfig.configure() ");
         System.err.printf(" [TRACE] SecuriyConfig.config() API-HEADER = %s ; API-KEY=%s \n"
-                            , authHeaderName, authHeaderValue);
+                , authHeaderName, authHeaderValue);
+
 
         TokenHeaderFilter filter = new TokenHeaderFilter(authHeaderName);
 
         filter.setAuthenticationManager(new AuthenticationManager()
         {
             @Override
-            public Authentication authenticate(Authentication authentication)
-                    throws AuthenticationException
+            public Authentication authenticate(Authentication authentication) throws AuthenticationException
             {
                 String principal = (String) authentication.getPrincipal();
 
                 if (!authHeaderValue.equals(principal))
                 {
-                    throw new BadCredentialsException("The API key was not found "
-                            + "or not the expected value.");
+                    throw new BadCredentialsException("The API key was not found");
                 }
                 authentication.setAuthenticated(true);
                 return authentication;
             }
         });
 
-        httpSecurity.
-                antMatcher("/api/**")
+        ExceptionTranslationFilter filterBefore = null;
+        filterBefore = new ExceptionTranslationFilter(new Http403ForbiddenEntryPoint());
+
+        http.antMatcher("/api/**")
                 .csrf()
                 .disable()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(filter)
-                .addFilterBefore(new ExceptionTranslationFilter(
-                                new Http403ForbiddenEntryPoint()),
-                        filter.getClass()
-                )
+                .addFilterBefore(filterBefore, filter.getClass())
                 .authorizeRequests()
                 .anyRequest()
                 .authenticated();
