@@ -1,0 +1,957 @@
+* Sample REST API / Spring Boot and H2-database 
+** Overview 
+
+Portuguese description: 
+
+  + Este é um exemplo projeto de uma REST API para gerenciamento de
+    pessoas usando a stack de tecnologias: Java 16, sistema de
+    compilação gradle, Spring Boot framework e banco de dados H2
+    in-memory.
+
+English description: 
+
+  + This project is a sample REST API for people management using the
+    tecnology stack: Java 16, gradle building system, Spring Boot
+    framework and H2 in-memory database.
+
+  + Project features highlights:
+    + REST API for people management
+    + Http header API key authentication
+    + In-memory H2 database.
+    + Gradle building system 
+
+
+Project structure: 
+
+#+BEGIN_SRC java 
+   $ cd api_person  
+   
+   $ >> tree . -I build
+  .
+  ├── build.gradle
+  ├── change_data.sh
+  ├── create_data.sh
+  ├── gradle
+  │   └── wrapper
+  │       ├── gradle-wrapper.jar
+  │       └── gradle-wrapper.properties
+  ├── gradlew
+  ├── gradlew.bat
+  ├── HELP.md
+  ├── settings.gradle
+  ├── src
+  │   ├── main
+  │   │   ├── java
+  │   │   │   └── com
+  │   │   │       └── mycompany
+  │   │   │           └── people
+  │   │   │               └── api_person
+  │   │   │                   ├── ApiPersonApplication.java
+  │   │   │                   ├── controllers
+  │   │   │                   │   └── PersonController.java
+  │   │   │                   ├── database
+  │   │   │                   │   ├── Person.java
+  │   │   │                   │   ├── PersonRepository.java
+  │   │   │                   │   ├── Phone.java
+  │   │   │                   │   └── PhoneType.java
+  │   │   │                   ├── dto
+  │   │   │                   │   ├── package-info.java
+  │   │   │                   │   ├── PersonDTO.java
+  │   │   │                   │   ├── PersonMapper.java
+  │   │   │                   │   └── PhoneDTO.java
+  │   │   │                   └── security
+  │   │   │                       ├── SecurityConfig.java
+  │   │   │                       └── TokenHeaderFilter.java
+  │   │   └── resources
+  │   │       ├── application.properties
+  │   │       ├── static
+  │   │       └── templates
+  │   └── test
+  │       └── java
+  │           └── com
+  │               └── mycompany
+  │                   └── people
+  │                       └── api_person
+  │                           └── ApiPersonApplicationTests.java
+  └── system.properties
+
+  22 directories, 24 files
+#+END_SRC
+** Building and running
+
+  *Listing gradle tasks / Listando tarefas do gradle*
+ 
+Enter at the project directory from command line and run the following
+commands for listing all gradle tasks:
+
+#+BEGIN_SRC sh 
+    $ >> ./gradlew tasks
+
+    > Task :tasks
+
+    ------------------------------------------------------------
+    Tasks runnable from root project 'api_person'
+    ------------------------------------------------------------
+
+    Application tasks
+    -----------------
+    bootRun - Runs this project as a Spring Boot application.
+
+    Build tasks
+    -----------
+    assemble - Assembles the outputs of this project.
+    bootBuildImage - Builds an OCI image of the application using the output of the bootJar task
+    bootJar - Assembles an executable jar archive containing the main classes and their dependencies.
+    bootJarMainClassName - Resolves the name of the application's main class for the bootJar task.
+    bootRunMainClassName - Resolves the name of the application's main class for the bootRun task.
+    build - Assembles and tests this project.
+    buildDependents - Assembles and tests this project and all projects that depend on it.
+    buildNeeded - Assembles and tests this project and all projects it depends on.
+    classes - Assembles main classes.
+    clean - Deletes the build directory.
+    jar - Assembles a jar archive containing the main classes.
+    testClasses - Assembles test classes.
+
+    Build Setup tasks
+    -----------------
+    init - Initializes a new Gradle build.
+    wrapper - Generates Gradle wrapper files.
+
+    Documentation tasks
+    -------------------
+    javadoc - Generates Javadoc API documentation for the main source code.
+
+    Help tasks
+    ----------
+    buildEnvironment - Displays all buildscript dependencies declared in root project 'api_person'.
+    dependencies - Displays all dependencies declared in root project 'api_person'.
+    dependencyInsight - Displays the insight into a specific dependency in root project 'api_person'.
+    dependencyManagement - Displays the dependency management declared in root project 'api_person'.
+    help - Displays a help message.
+    javaToolchains - Displays the detected java toolchains.
+    outgoingVariants - Displays the outgoing variants of root project 'api_person'.
+    projects - Displays the sub-projects of root project 'api_person'.
+    properties - Displays the properties of root project 'api_person'.
+    tasks - Displays the tasks runnable from root project 'api_person'.
+
+    Verification tasks
+    ------------------
+    check - Runs all checks.
+    test - Runs the unit tests.
+
+    Rules
+    -----
+    Pattern: clean<TaskName>: Cleans the output files of a task.
+    Pattern: build<ConfigurationName>: Assembles the artifacts of a configuration.
+
+    To see all tasks and more detail, run gradlew tasks --all
+
+    To see more detail about a task, run gradlew help --task <task>
+
+    BUILD SUCCESSFUL in 1s
+    1 actionable task: 1 executed
+
+#+END_SRC
+
+  *Building project* 
+
+#+BEGIN_SRC java 
+    $ >> ./gradlew build
+
+    > Task :compileJava
+
+    ... .... ... ... ... 
+
+    BUILD SUCCESSFUL in 14s
+    7 actionable tasks: 7 executed
+#+END_SRC
+
+  
+  *Building uber-jar file containing project and all dependencies* 
+
+
+Building uber jar (executable jar):
+
+#+BEGIN_SRC sh  
+ $ >> ./gradlew bootJar
+
+BUILD SUCCESSFUL in 1s
+4 actionable tasks: 4 up-to-date
+#+END_SRC
+
+Finding jars: 
+
+#+BEGIN_SRC sh 
+    $ >> find build -name "*.jar"
+    build/libs/api_person-0.0.1-SNAPSHOT-plain.jar
+    build/libs/api_person-0.0.1-SNAPSHOT.jar
+#+END_SRC
+
+** Running REST API  
+
+This section documents the REST API functionality, its endpoints and
+possible request using many examples with the curl command line
+tool for making http requests. 
+
+   
+ *Application Settings / Configurações da Aplicação*
+
+
+REST API clients authenticates by providing the API key on every http
+request to the server. This sample rest API uses a pre-defined default
+in order to playing with the API without any configuration. However,
+for security reasons, the API key for authentication must be unique
+for every deployment. The API key can be changed by editing the file
+_application.properties_. 
+
+File: _appplication.properties_
+
+#+BEGIN_SRC sh  
+    # Set default port
+    server.port=9056
+
+    # Disable spring ascii banner
+    spring.main.banner-mode=off
+
+    # Uncomment the next line to enable stack trace during debugging.
+    # Uncomment this line in production.
+    #--------------------------------------------------------------------
+    # server.error.include-stacktrace=never
+
+    # =============== Security Settings ========================#
+    #
+    # =>> Note: The API key should changed by the end-user.
+    # =>> This API key was generated using the Linux command $ uuidgen
+    # =>> The tokenValue must not have any blank space at its end.
+    #------------------------------------------------------------------
+    application.auth.enabled=true 
+    application.auth.tokenName=X-AUTH-KEY
+    application.auth.tokenValue=75622017-54be-4666-b79b-59cab8b752cc
+
+#+END_SRC
+
+New random API keys can be generated by using the command uuidgen on
+Linux or any other unix-like operating system:
+
+#+BEGIN_SRC sh 
+    $ >> uuidgen
+    7b706194-fb09-481f-80ea-1ec9331ebe9f
+
+    $ >> uuidgen
+    d39caa48-fad1-4b19-adc8-319e143d1513
+#+END_SRC
+
+*Running project using gradle wrapper*
+
+
+#+BEGIN_SRC java 
+    $ >> ./gradlew bootRun
+
+    > Task :bootRun
+    [INFO] Spring boot stated. Ok. 
+    [INFO] Spring boot stated. Ok. 
+    2021-07-11 13:59:15.942  INFO 2849812 --- [  restartedMain] c.m.p.api_person.ApiPersonApplication    : Starting ApiPersonApplication using Java 16.0.1 on gmhf8z4-Inspiron-5457 with PID 2849812 (/home/gmhf8z4/java-projects/api_person/build/classes/java/main started by gmhf8z4 in /home/gmhf8z4/java-projects/api_person)
+    2021-07-11 13:59:15.945  INFO 2849812 --- [  restartedMain] c.m.p.api_person.ApiPersonApplication    : No active profile set, falling back to default profiles: default
+    2021-07-11 13:59:15.990  INFO 2849812 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+    2021-07-11 13:59:15.991  INFO 2849812 --- [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+
+    ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ... 
+    ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  ... ...  
+    
+   [TRACE] Entered method. SecurityConfig.configure() 
+   [TRACE] SecuriyConfig.config() API-HEADER = X-AUTH-KEY ; API-KEY=75622017-54be-4666-b79b-59cab8b752cc 
+#+END_SRC
+
+
+ *Running project using the uber jar* 
+
+#+BEGIN_SRC java 
+    $ >> java -jar build/libs/api_person-0.0.1-SNAPSHOT.jar
+
+    [INFO] Spring boot stated. Ok. 
+    2021-07-11 13:54:36.488  INFO 2848712 --- [           main] c.m.p.api_person.ApiPersonApplication    : Starting ApiPersonApplication using Java 16.0.1 on gmhf8z4-Inspiron-5457 with PID 2848712 (/home/gmhf8z4/java-projects/api_person/build/libs/api_person-0.0.1-SNAPSHOT.jar started by gmhf8z4 in /home/gmhf8z4/java-projects/api_person)
+    2021-07-11 13:54:36.493  INFO 2848712 --- [           main] c.m.p.api_person.ApiPersonApplication    : No active profile set, falling back to default profiles: default
+    2021-07-11 13:54:38.039  INFO 2848712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+    2021-07-11 13:54:38.109  INFO 2848712 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 58 ms. Found 1 JPA repository interfaces.
+    2021-07-11 13:54:39.016  INFO 2848712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 9056 (http)
+    2021-07-11 13:54:39.036  INFO 2848712 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+    2021-07-11 13:54:39.037  INFO 2848712 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.48]
+    2021-07-11 13:54:39.138  INFO 2848712 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+    2021-07-11 13:54:39.138  INFO 2848712 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2532 ms
+
+    ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ... 
+    ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ...   ... 
+
+    [TRACE] Entered method. SecurityConfig.configure() 
+    [TRACE] SecuriyConfig.config() API-HEADER = X-AUTH-KEY ; API-KEY=75622017-54be-4666-b79b-59cab8b752cc 
+    2021-07-11 13:54:42.251  INFO 2848712 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure Ant [pattern='/api/**'] with [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1305c126, org.springframework.security.web.context.SecurityContextPersistenceFilter@6dcc40f5, org.springframework.security.web.header.HeaderWriterFilter@4faa298, org.springframework.security.web.authentication.logout.LogoutFilter@7ecec90d, org.springframework.security.web.access.ExceptionTranslationFilter@72f9f27c, com.mycompany.people.api_person.security.TokenHeaderFilter@4c1bdcc2, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@70887727, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@10f7c76, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@762637be, org.springframework.security.web.session.SessionManagementFilter@40e37b06, org.springframework.security.web.access.ExceptionTranslationFilter@15639440, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@5e7c141d]
+    2021-07-11 13:54:42.852  INFO 2848712 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+    2021-07-11 13:54:42.954  INFO 2848712 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 9056 (http) with context path ''
+    2021-07-11 13:54:42.979  INFO 2848712 --- [           main] c.m.p.api_person.ApiPersonApplication    : Started ApiPersonApplication in 7.365 seconds (JVM running for 8.149)
+
+#+END_SRC
+ 
+
+  *Querying Rest API* 
+
+Setting the ~API_KEY~ environment variable in bash shell on Linux. Note:
+this the default API key, equivalent to a default password. REMEMBER:
+IT MUST BE CHANGED ON EVERY DEPLOYMENT.
+
+#+BEGIN_SRC sh 
+ $ >> export API_KEY=75622017-54be-4666-b79b-59cab8b752cc
+#+END_SRC
+
+Note: on the following command line sessions require the tools _curl_
+and _jq_ (for pretty printing json). These tools can be installed on
+Ubuntu-variants with the command line:
+
+#+BEGIN_SRC sh 
+   $ >> sudo apt-get install -y jq curl 
+#+END_SRC
+
+
+Attempt to perform a http request without authentication: 
+
+#+BEGIN_SRC sh 
+    $ >> curl  -0 -v -X GET http://localhost:9056/api/v1/people
+    Note: Unnecessary use of -X or --request, GET is already inferred.
+    *   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#0)
+    > GET /api/v1/people HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > 
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 403 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: application/json
+    < Date: Sun, 11 Jul 2021 17:17:52 GMT
+    < Connection: close
+    < 
+    * Closing connection 0
+    {"timestamp":"2021-07-11T17:17:52.961+00:00","status":403,"error":"Forbidden","message":"Access Denied","path":"/api/v1/people"}
+
+#+END_SRC
+
+Attempt to perform a http request with authentication. The API yields
+an empty list result since the database is initially empty. 
+
+#+BEGIN_SRC sh 
+    $ >> curl -H "X-AUTH-KEY: $API_KEY" -0 -v -X GET http://localhost:9056/api/v1/people
+    
+    Note: Unnecessary use of -X or --request, GET is already inferred.
+    *   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#0)
+    > GET /api/v1/people HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > 
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 200 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: application/json
+    < Date: Sun, 11 Jul 2021 17:19:55 GMT
+    < Connection: close
+    < 
+    * Closing connection 0
+    []⏎                      
+#+END_SRC
+
+ *Populating the database* 
+
+Run the shell script _create_data.sh_ containing many recorded curl
+commands for making http requests that populates the database with
+sample data. 
+   
+   + Note: the CPFs numbers (CPF - Cadastro de Peossas Fisicas) is the
+     Brazilian equivalent of a taxpayers number or America's SSN -
+     Social Security Number.
+
+   + Note: The sample CPFs for testing were generated with the online tool:
+     + https://theonegenerator.com/generators/documents/cpf-generator/
+
+   + Note: All CPF numbers, names and phones used in this page are
+     fictitious and randomly generated for testing purposes.
+
+File: _create_data.sh_ 
+
+#+BEGIN_SRC sh 
+    #!/usr/bin/env sh
+ 
+    ... ...      ... ...      ... ...      ... ...      ... ...      ... ...      ... ...  
+     ... ...      ... ...      ... ...      ... ...      ... ...      ... ...      ... ...    
+
+    curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
+        -H 'Content-Type: application/json; charset=utf-8' \
+        --data-binary @- << EOF
+    { "firstName": "João"
+        , "lastName": "Moreira Silva Junior"
+        , "cpf": "370.329.298-93"
+        , "dateOfBirth": "1990-02-25"  
+        , "phones": [
+            { "type":  "HOME", "phone": "9-922-2459"}
+        ]
+    }
+    EOF
+
+    # exit 0
+
+    curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
+        -H 'Content-Type: application/json; charset=utf-8' \
+        --data-binary @- << EOF
+    {   "firstName": "Amelia"
+        , "lastName": "Wolfgang Strauss"
+        , "cpf": "891.655.479-93"
+        , "dateOfBirth": "2001-09-24"  
+        , "phones": [
+            { "type":  "HOME", "phone": "9-926-2159"}
+        ]
+
+    }
+    EOF
+    
+    ... ...      ... ...      ... ...      ... ...      ... ...      ... ...  
+    ... ...      ... ...      ... ...      ... ...      ... ...      ... ...  
+
+#+END_SRC
+
+
+
+ *Registering a sample user using the /api/v1/persons endpoint*
+
+#+BEGIN_SRC sh 
+    $ >> sh create_data.sh
+    [*] CREDENTIAL = 
+    * Could not resolve host: POST
+    * Closing connection 0
+    curl: (6) Could not resolve host: POST
+    *   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#1)
+    > POST /api/v1/people HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > Content-Type: application/json; charset=utf-8
+    > Content-Length: 219
+    > 
+    * upload completely sent off: 219 out of 219 bytes
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 201 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: text/plain;charset=UTF-8
+    < Content-Length: 27
+    < Date: Sun, 11 Jul 2021 17:28:44 GMT
+    < Connection: close
+    < 
+    * Closing connection 1
+    Created person with ID = 1* Could not resolve host: POST
+    * Closing connection 0
+    curl: (6) Could not resolve host: POST
+    *   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#1)
+    > POST /api/v1/people HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > Content-Type: application/json; charset=utf-8
+    > Content-Length: 221
+    > 
+    * upload completely sent off: 221 out of 221 bytes
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 201 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: text/plain;charset=UTF-8
+    < Content-Length: 27
+    < Date: Sun, 11 Jul 2021 17:28:44 GMT
+    < Connection: close
+    < 
+    
+    .... .... ... ...... .... .... ... ...... .... .... ... ...... .... .... ... ...... 
+    .... .... ... ...... .... .... ... ...... .... .... ... ...... .... .... ... ...... 
+#+END_SRC
+ 
+
+Querying all registered persons: 
+
+#+BEGIN_SRC sh 
+    $ >> curl -H "X-AUTH-KEY: $API_KEY" -0 -v -X GET http://localhost:9056/api/v1/people | jq 
+    Note: Unnecessary use of -X or --request, GET is already inferred.
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#0)
+    > GET /api/v1/people HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > 
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 200 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: application/json
+    < Date: Sun, 11 Jul 2021 17:37:23 GMT
+    < Connection: close
+    < 
+    { [2141 bytes data]
+    100  2141    0  2141    0     0  47577      0 --:--:-- --:--:-- --:--:-- 48659
+    * Closing connection 0
+    [
+    {
+        "id": 1,
+        "firstName": "João",
+        "lastName": "Moreira Silva Junior",
+        "cpf": "370.329.298-93",
+        "dateOfBirth": "1990-02-25",
+        "phones": [
+        {
+            "id": 1,
+            "type": "HOME",
+            "phone": "9-922-2459"
+        }
+        ]
+    },
+    {
+        "id": 2,
+        "firstName": "Amelia",
+        "lastName": "Wolfgang Strauss",
+        "cpf": "891.655.479-93",
+        "dateOfBirth": "2001-09-24",
+        "phones": [
+        {
+            "id": 2,
+            "type": "HOME",
+            "phone": "9-926-2159"
+        }
+        ]
+    },
+    {
+        "id": 3,
+        "firstName": "João",
+        "lastName": "Mozart Franco Dias",
+        "cpf": "478.361.889-57",
+        "dateOfBirth": "1980-11-20",
+        "phones": [
+        {
+            "id": 3,
+            "type": "MOBILE",
+            "phone": "9-823-2251"
+        },
+        {
+            "id": 4,
+            "type": "COMMERCIAL",
+            "phone": "9-867-1269"
+        }
+        ]
+    },
+
+    ... ... ...   ... ... ...   ... ... ...   ... ... ...   ... ... ... 
+    ... ... ...   ... ... ...   ... ... ...   ... ... ...   ... ... ...   
+
+    {
+        "id": 11,
+        "firstName": "Laura",
+        "lastName": "Gomes Antunes de Assuncion",
+        "cpf": "107.166.659-21",
+        "dateOfBirth": "2011-05-01",
+        "phones": [
+        {
+            "id": 14,
+            "type": "HOME",
+            "phone": "9-626-2918"
+        }
+        ]
+    },
+    {
+        "id": 12,
+        "firstName": "John",
+        "lastName": "Von Neumman",
+        "cpf": "336.802.108-76",
+        "dateOfBirth": "1970-12-21",
+        "phones": [
+        {
+            "id": 15,
+            "type": "HOME",
+            "phone": "2-134-2116"
+        }
+        ]
+    }
+    ]
+
+#+END_SRC
+
+Querying a single user by id: 
+
+#+BEGIN_SRC sh 
+    $ >> curl -q -H "X-AUTH-KEY: $API_KEY" -0  -X GET http://localhost:9056/api/v1/people/5 | jq
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    100   166    0   166    0     0   8736      0 --:--:-- --:--:-- --:--:--  8736
+    {
+    "id": 5,
+    "firstName": "Mosche",
+    "lastName": "Aaaron Cohen",
+    "cpf": "506.526.827-40",
+    "dateOfBirth": "1979-06-11",
+    "phones": [
+        {
+        "id": 6,
+        "type": "COMMERCIAL",
+        "phone": "9-261-2122"
+        }
+    ]
+    }
+
+    $ >> curl -q -H "X-AUTH-KEY: $API_KEY" -0  -X GET http://localhost:9056/api/v1/people/2 | jq
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    100   164    0   164    0     0   4205      0 --:--:-- --:--:-- --:--:--  4205
+    {
+    "id": 2,
+    "firstName": "Amelia",
+    "lastName": "Wolfgang Strauss",
+    "cpf": "891.655.479-93",
+    "dateOfBirth": "2001-09-24",
+    "phones": [
+        {
+        "id": 2,
+        "type": "HOME",
+        "phone": "9-926-2159"
+        }
+    ]
+    }
+
+#+END_SRC
+
+Delete a person record: 
+
+#+BEGIN_SRC sh  
+    $ >> curl -v -q -H "X-AUTH-KEY: $API_KEY" -0  -X GET http://localhost:9056/api/v1/people/7 | jq
+    Note: Unnecessary use of -X or --request, GET is already inferred.
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#0)
+    > GET /api/v1/people/7 HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > 
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 200 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: application/json
+    < Date: Sun, 11 Jul 2021 17:43:43 GMT
+    < Connection: close
+    < 
+    { [158 bytes data]
+    100   158    0   158    0     0   9294      0 --:--:-- --:--:-- --:--:--  9294
+    * Closing connection 0
+    {
+    "id": 7,
+    "firstName": "Cohen",
+    "lastName": "Sacha Borat",
+    "cpf": "505.686.277-09",
+    "dateOfBirth": "1975-02-22",
+    "phones": [
+        {
+        "id": 8,
+        "type": "HOME",
+        "phone": "9-961-2598"
+        }
+    ]
+    }
+
+    # Delete user by ID 
+    $ >> curl -v -q -H "X-AUTH-KEY: $API_KEY" -0  -X DELETE http://localhost:9056/api/v1/people/7 | jq
+
+    # Check 
+    $ >> curl -v -q -H "X-AUTH-KEY: $API_KEY" -0  -X GET http://localhost:9056/api/v1/people/7 | jq
+    Note: Unnecessary use of -X or --request, GET is already inferred.
+    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                    Dload  Upload   Total   Spent    Left  Speed
+    0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#0)
+    > GET /api/v1/people/7 HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > 
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 404 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: application/json
+    < Date: Sun, 11 Jul 2021 17:44:55 GMT
+    < Connection: close
+    < 
+    { [7905 bytes data]
+    100 10205    0 10205    0     0   269k      0 --:--:-- --:--:-- --:--:--  269k
+    * Closing connection 0
+    {
+    "timestamp": "2021-07-11T17:44:55.054+00:00",
+    "status": 404,
+    "error": "Not Found",
+    "trace": "org.springframework.web.server.ResponseStatusException: 404 NOT_FOUND ... "
+    "message": "No resource found for id (7)",
+    "path": "/api/v1/people/7"
+
+    }
+#+END_SRC
+
+Register a new person through a POST http request: 
+
+#+BEGIN_SRC sh  
+    # POST http request for registering a new user. The request contains a JSON payload. 
+    curl -H "X-AUTH-KEY: $API_KEY" -0 -v -X POST http://localhost:9056/api/v1/people \
+        -H 'Content-Type: application/json; charset=utf-8' \
+        --data-binary @- << EOF
+    {   "firstName": "Marius"
+        , "lastName":  "Wolfgang Amadeus Mozart"
+        , "cpf":         "474.520.257-17"
+        , "dateOfBirth": "1990-06-22"  
+        , "phones": [
+                { "type":  "HOME",  "phone": "1-135-2895"}
+            , { "type":  "COMMERCIAL", "phone": "2-891-4599"}
+        ]
+
+    }
+    EOF
+
+    $ curl -H "X-AUTH-KEY: $API_KEY" -0 -v POST http://localhost:9056/api/v1/people \
+    >      -H 'Content-Type: application/json; charset=utf-8' \
+    >      --data-binary @- << EOF
+    >    {   "firstName": "Marius"
+    >      , "lastName":  "Wolfgang Amadeus Mozart"
+    >      , "cpf":         "474.520.257-17"
+    >      , "dateOfBirth": "1990-06-22"  
+    >      , "phones": [
+    >              { "type":  "HOME",  "phone": "1-135-2895"}
+    >            , { "type":  "COMMERCIAL", "phone": "2-891-4599"}
+    >        ]
+    > 
+    >    }
+    > EOF
+    * Could not resolve host: POST
+    * Closing connection 0
+    curl: (6) Could not resolve host: POST
+    *   Trying 127.0.0.1:9056...
+    * TCP_NODELAY set
+    * Connected to localhost (127.0.0.1) port 9056 (#1)
+    > POST /api/v1/people HTTP/1.0
+    > Host: localhost:9056
+    > User-Agent: curl/7.68.0
+    > Accept: */*
+    > X-AUTH-KEY: 75622017-54be-4666-b79b-59cab8b752cc
+    > Content-Type: application/json; charset=utf-8
+    > Content-Length: 302
+    > 
+    * upload completely sent off: 302 out of 302 bytes
+    * Mark bundle as not supporting multiuse
+    < HTTP/1.1 201 
+    < X-Content-Type-Options: nosniff
+    < X-XSS-Protection: 1; mode=block
+    < Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+    < Pragma: no-cache
+    < Expires: 0
+    < X-Frame-Options: DENY
+    < Content-Type: text/plain;charset=UTF-8
+    < Content-Length: 28
+    < Date: Sun, 11 Jul 2021 17:52:53 GMT
+    < Connection: close
+    < 
+    * Closing connection 1
+    Created person with ID = 13
+#+END_SRC
+
+Query new registered user with id = 13.
+
+#+BEGIN_SRC sh 
+    $ curl -H "X-AUTH-KEY: $API_KEY" -0 --silent GET http://localhost:9056/api/v1/people/13 | jq 
+    {
+    "id": 13,
+    "firstName": "Marius",
+    "lastName": "Wolfgang Amadeus Mozart",
+    "cpf": "474.520.257-17",
+    "dateOfBirth": "1990-06-22",
+    "phones": [
+        {
+        "id": 16,
+        "type": "HOME",
+        "phone": "1-135-2895"
+        },
+        {
+        "id": 17,
+        "type": "COMMERCIAL",
+        "phone": "2-891-4599"
+        }
+    ]
+    }
+
+#+END_SRC
+
+Search person by name: 
+
+#+BEGIN_SRC sh 
+    ~/j/api_person
+    $ >> curl --silent -q -H "X-AUTH-KEY: $API_KEY" -0  -X GET "http://localhost:9056/api/v1/people?lastName=neum" | jq
+    [
+    {
+        "id": 12,
+        "firstName": "John",
+        "lastName": "Von Neumman",
+        "cpf": "336.802.108-76",
+        "dateOfBirth": "1970-12-21",
+        "phones": [
+        {
+            "id": 15,
+            "type": "HOME",
+            "phone": "2-134-2116"
+        }
+        ]
+    }
+    ]
+
+
+    $ >> curl --silent -q -H "X-AUTH-KEY: $API_KEY" -0  -X GET "http://localhost:9056/api/v1/people?lastName=cohen" | jq
+    [
+    {
+        "id": 5,
+        "firstName": "Mosche",
+        "lastName": "Aaaron Cohen",
+        "cpf": "506.526.827-40",
+        "dateOfBirth": "1979-06-11",
+        "phones": [
+        {
+            "id": 6,
+            "type": "COMMERCIAL",
+            "phone": "9-261-2122"
+        }
+        ]
+    },
+    {
+        "id": 8,
+        "firstName": "Moche",
+        "lastName": "Levy Cohen",
+        "cpf": "623.435.360-66",
+        "dateOfBirth": "1982-09-12",
+        "phones": [
+        {
+            "id": 9,
+            "type": "HOME",
+            "phone": "9-961-2598"
+        }
+        ]
+    }
+    ]
+#+END_SRC
+
+Modify entries with PUT request: 
+
+#+BEGIN_SRC sh 
+    # Query registered person which ID = 1 
+    $ curl -H "X-AUTH-KEY: $API_KEY" -0 --silent GET http://localhost:9056/api/v1/people/1 | jq 
+    {
+    "id": 1,
+    "firstName": "João",
+    "lastName": "Moreira Silva Junior",
+    "cpf": "370.329.298-93",
+    "dateOfBirth": "1990-02-25",
+    "phones": [
+        {
+        "id": 1,
+        "type": "HOME",
+        "phone": "9-922-2459"
+        }
+    ]
+    }
+
+    # Modify registered person database entry where ID = 1
+    curl -0 -v -H "X-AUTH-KEY: $API_KEY" --request PUT http://localhost:9056/api/v1/people/1 \
+        -H 'Content-Type: application/json; charset=utf-8' \
+        --data-binary @- << EOF
+    { 
+        "firstName": "Marcus"
+        , "lastName": "Augustus Caesar"
+        , "cpf": "370.329.298-93"
+        , "dateOfBirth": "1992-12-15"  
+        , "phones": [
+            { "type":  "HOME", "phone": "9-926-2159"}
+        ]
+    }
+    EOF
+
+    # Query again in order to confirm whether the PUT request works.
+    $ curl -H "X-AUTH-KEY: $API_KEY" -0 --silent GET http://localhost:9056/api/v1/people/1 | jq 
+    {
+    "id": 1,
+    "firstName": "Marcus",
+    "lastName": "Augustus Caesar",
+    "cpf": "370.329.298-93",
+    "dateOfBirth": "1990-02-25",
+    "phones": [
+        {
+        "id": 16,
+        "type": "HOME",
+        "phone": "9-926-2159"
+        }
+    ]
+    }
+
+
+#+END_SRC
+
+
+
+
+
+
