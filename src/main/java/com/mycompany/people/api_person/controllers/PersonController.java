@@ -6,13 +6,11 @@ import com.mycompany.people.api_person.database.Phone;
 import com.mycompany.people.api_person.database.PhoneType;
 import com.mycompany.people.api_person.dto.PersonDTO;
 import com.mycompany.people.api_person.dto.PersonMapper;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -68,12 +66,20 @@ public class PersonController
     }
 
     // Http method GET
+    // @RequestParam( name = "name", ...) String query => Is the endpoint query
+    // parameter /api/v1/people?lastName=<SOMETHING>
     @GetMapping
-    public List<Person> listAll()
+    public List<Person> listAll( @RequestParam( name = "lastName", required = false) String firstName  )
     {
-        List<Person> all = personRepository.findAll();
-        System.err.println(" [TRACE] All people = \n" + all);
-        return all;
+        // Return all registered users
+        if( firstName == null || firstName.isEmpty() ) {
+            List<Person> all = personRepository.findAll();
+            System.err.println(" [TRACE] All people = \n" + all);
+            return all;
+        }
+        System.err.println(" [TRACE] Searching user which name is like " + firstName );
+        // Search user by first name
+        return personRepository.findPersonByLastName(firstName);
     }
 
     // Note: This method returns 'Person' instead of DTO since it is assumed that
